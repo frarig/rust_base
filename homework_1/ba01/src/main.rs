@@ -1,13 +1,23 @@
-use std::io::{stdin, Read, stdout, Write};
+use std::io::{Read, Write, stdin, stdout};
 
 fn main() {
     output(count_bytes(from_input(stdin())))
 }
 
 fn from_input<T: Read>(mut reader: T) -> usize {
-    reader
-        .read(&mut [0u8; 1024])
-        .expect("Failed to read input")
+    let mut res = 0usize;
+    let mut r;
+
+    loop {
+        r = reader.read(&mut [0u8; 1024]).expect("Failed to read input");
+
+        if r == 0 {
+            break;
+        }
+        res += r;
+    }
+
+    res
 }
 
 fn count_bytes(input: usize) -> Vec<u8> {
@@ -15,9 +25,7 @@ fn count_bytes(input: usize) -> Vec<u8> {
 }
 
 fn output(res: Vec<u8>) {
-    stdout()
-        .write_all(&res)
-        .expect("Failed to write to stdout");
+    stdout().write_all(&res).expect("Failed to write to stdout");
 
     stdout()
         .write_all(b"\n")
@@ -35,6 +43,7 @@ mod tests {
         assert_eq!(from_input(&b""[..]), 0);
         assert_eq!(from_input(&"🦀".as_bytes()[..]), 4);
         assert_eq!(from_input(&b"   "[..]), 3);
+        assert_eq!(from_input(&b"Hello Hello Hello Hello Hello\n"[..]), 30);
     }
 
     #[test]
@@ -45,4 +54,3 @@ mod tests {
         assert_eq!(count_bytes(4), [52]);
     }
 }
-
